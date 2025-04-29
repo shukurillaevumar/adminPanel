@@ -20,6 +20,7 @@ const CategoryPage: React.FC = () => {
   const [nameEn, setNameEn] = useState("");
   const [nameRu, setNameRu] = useState("");
   const [nameDe, setNameDe] = useState("");
+  const [clickId, setClickId] = useState<number | null>(null);
 
   useEffect(() => {
     const accessToken = localStorage.getItem("access_token");
@@ -68,10 +69,9 @@ const CategoryPage: React.FC = () => {
 
   const updateCategory = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!editCategory) return;
 
-    fetch(`https://back.ifly.com.uz/api/category/${editCategory.id}`, {
-      method: "PUT",
+    fetch(`https://back.ifly.com.uz/api/category/${clickId}`, {
+      method: "PATCH",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
@@ -168,6 +168,7 @@ const CategoryPage: React.FC = () => {
                     onClick={() => {
                       setEditCategory(element);
                       setEditModalOpen(true);
+                      setClickId(element?.id);
                     }}
                     className="bg-yellow-400 hover:bg-yellow-500 text-white py-1 px-3 rounded cursor-pointer"
                   >

@@ -2,6 +2,8 @@
 import { Dialog, Transition } from "@headlessui/react";
 import React, { useEffect, useState, Fragment } from "react";
 import { toast, ToastContainer } from "react-toastify";
+import noData from "../../../../public/noData.png";
+import Image from "next/image";
 
 type Faq = {
   id: number;
@@ -225,35 +227,54 @@ const ContactPage: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {data?.map((element) => (
-                  <tr key={element.id} className="text-center">
-                    <td className="py-2 px-4 border">{element.id}</td>
-                    <td className="py-2 px-4 border">{element.phone_number}</td>
-                    <td className="py-2 px-4 border">{element.email}</td>
-                    <td className="py-2 px-4 border">{element.address_en}</td>
-                    <td className="py-2 px-4 border">{element.address_ru}</td>
-                    <td className="py-2 px-4 border">{element.address_de}</td>
+                {data && data.length > 0 ? (
+                  data?.map((element) => (
+                    <tr key={element.id} className="text-center">
+                      <td className="py-2 px-4 border">{element.id}</td>
+                      <td className="py-2 px-4 border">
+                        {element.phone_number}
+                      </td>
+                      <td className="py-2 px-4 border">{element.email}</td>
+                      <td className="py-2 px-4 border">{element.address_en}</td>
+                      <td className="py-2 px-4 border">{element.address_ru}</td>
+                      <td className="py-2 px-4 border">{element.address_de}</td>
 
-                    <td className="py-2 px-4 border space-x-2">
-                      <button
-                        onClick={() => {
-                          setEditContact(element);
-                          setEditModalOpen(true);
-                          setClickId(element?.id);
-                        }}
-                        className="bg-yellow-400 hover:bg-yellow-500 text-white py-1 px-3 rounded cursor-pointer"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => deleteContact(element.id)}
-                        className="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded cursor-pointer"
-                      >
-                        Delete
-                      </button>
+                      <td className="py-2 px-4 border space-x-2">
+                        <button
+                          onClick={() => {
+                            setEditContact(element);
+                            setEditModalOpen(true);
+                            setClickId(element?.id);
+                          }}
+                          className="bg-yellow-400 hover:bg-yellow-500 text-white py-1 px-3 rounded cursor-pointer"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => deleteContact(element.id)}
+                          className="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded cursor-pointer"
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={10} className="py-6 px-4 text-center">
+                      <div className="flex flex-col items-center justify-center">
+                        <Image
+                          src={noData}
+                          alt="No data"
+                          className="w-48 h-48 mb-4"
+                        />
+                        <p className="text-gray-500 text-lg">
+                          Данные отсутствуют
+                        </p>
+                      </div>
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>

@@ -5,7 +5,7 @@ import { toast, ToastContainer } from "react-toastify";
 
 type Team = {
   id: number;
-  image: string;
+  image: any;
   full_name: string;
   position_en: string;
   position_ru: string;
@@ -53,7 +53,7 @@ const TeamPage: React.FC = () => {
     e.preventDefault();
 
     const formData = new FormData();
-    if (image) formData.append("image", image);
+    if (image) formData.append("file", image);
     formData.append("full_name", fullName);
     formData.append("position_en", positionEn);
     formData.append("position_ru", positionRu);
@@ -83,7 +83,7 @@ const TeamPage: React.FC = () => {
     e.preventDefault();
 
     const formData = new FormData();
-    if (image) formData.append("image", image);
+    if (image) formData.append("file", image);
     formData.append("full_name", fullName);
     formData.append("position_en", positionEn);
     formData.append("position_ru", positionRu);

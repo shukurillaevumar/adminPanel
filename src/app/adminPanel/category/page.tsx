@@ -2,6 +2,8 @@
 import { Dialog, Transition } from "@headlessui/react";
 import React, { useEffect, useState, Fragment } from "react";
 import { toast, ToastContainer } from "react-toastify";
+import noData from "../../../../public/noData.png";
+import Image from "next/image";
 
 type Category = {
   id: number;
@@ -22,15 +24,19 @@ const CategoryPage: React.FC = () => {
   const [nameDe, setNameDe] = useState("");
   const [clickId, setClickId] = useState<number | null>(null);
 
+  const [loadingData, setLoadingData] = useState(true);
+
   useEffect(() => {
     const accessToken = localStorage.getItem("access_token");
     setToken(accessToken);
   }, []);
 
   const getCategory = () => {
+    setLoadingData(true);
     fetch("https://back.ifly.com.uz/api/category")
       .then((response) => response.json())
       .then((item) => setData(item?.data));
+    setLoadingData(false);
   };
 
   useEffect(() => {
@@ -135,57 +141,101 @@ const CategoryPage: React.FC = () => {
 
   return (
     <div className="p-4 bg-white rounded-lg shadow">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold">Category</h2>
-        <button
-          onClick={openModal}
-          className="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded cursor-pointer"
-        >
-          Add Category
-        </button>
-      </div>
+      {loadingData ? (
+        <div className="flex justify-center items-center h-64">
+          <svg
+            className="animate-spin h-8 w-8 text-blue-500"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            />
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8v8z"
+            />
+          </svg>
+        </div>
+      ) : (
+        <>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold">Category</h2>
+            <button
+              onClick={openModal}
+              className="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded cursor-pointer"
+            >
+              Add Category
+            </button>
+          </div>
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full border border-gray-200 rounded">
-          <thead className="bg-gray-200">
-            <tr>
-              <th className="py-2 px-4 border">№</th>
-              <th className="py-2 px-4 border">Title ENG</th>
-              <th className="py-2 px-4 border">Title RU</th>
-              <th className="py-2 px-4 border">Title DE</th>
-              <th className="py-2 px-4 border">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data?.map((element) => (
-              <tr key={element.id} className="text-center">
-                <td className="py-2 px-4 border">{element.id}</td>
-                <td className="py-2 px-4 border">{element.name_en}</td>
-                <td className="py-2 px-4 border">{element.name_ru}</td>
-                <td className="py-2 px-4 border">{element.name_de}</td>
-                <td className="py-2 px-4 border space-x-2">
-                  <button
-                    onClick={() => {
-                      setEditCategory(element);
-                      setEditModalOpen(true);
-                      setClickId(element?.id);
-                    }}
-                    className="bg-yellow-400 hover:bg-yellow-500 text-white py-1 px-3 rounded cursor-pointer"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => deleteCategory(element.id)}
-                    className="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded cursor-pointer"
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          <div className="overflow-x-auto">
+            <table className="min-w-full border border-gray-200 rounded">
+              <thead className="bg-gray-200">
+                <tr>
+                  <th className="py-2 px-4 border">№</th>
+                  <th className="py-2 px-4 border">Title ENG</th>
+                  <th className="py-2 px-4 border">Title RU</th>
+                  <th className="py-2 px-4 border">Title DE</th>
+                  <th className="py-2 px-4 border">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data && data.length > 0 ? (
+                  data.map((element, index) => (
+                    <tr key={index} className="text-center">
+                      <td className="py-2 px-4 border">{index + 1}</td>
+                      <td className="py-2 px-4 border">{element.name_en}</td>
+                      <td className="py-2 px-4 border">{element.name_ru}</td>
+                      <td className="py-2 px-4 border">{element.name_de}</td>
+                      <td className="py-2 px-4 border space-x-2">
+                        <button
+                          onClick={() => {
+                            setEditCategory(element);
+                            setEditModalOpen(true);
+                            setClickId(element?.id);
+                          }}
+                          className="bg-yellow-400 hover:bg-yellow-500 text-white py-1 px-3 rounded cursor-pointer"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => deleteCategory(element.id)}
+                          className="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded cursor-pointer"
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={5} className="py-6 px-4 text-center">
+                      <div className="flex flex-col items-center justify-center">
+                        <img
+                          src="/no-data.png"
+                          alt="No data"
+                          className="w-48 h-48 mb-4"
+                        />
+                        <p className="text-gray-500 text-lg">
+                          Данные отсутствуют
+                        </p>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
 
       {/* Add Modal */}
       <Transition appear show={isOpen} as={Fragment}>

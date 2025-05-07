@@ -1,4 +1,5 @@
 "use client";
+import { ImageModal } from "@/app/components/ImageModal";
 import { Dialog, Transition } from "@headlessui/react";
 import React, { useEffect, useState, Fragment, ReactNode } from "react";
 import { toast, ToastContainer } from "react-toastify";
@@ -15,27 +16,37 @@ type Products = {
     name_en: string;
   };
   colors: any;
-  sizes: number;
+  sizes: Array<{ size: string }>;
   discount: {
     discount: number;
   };
   materials: {
-    [key: string]: number; // ключ — название материала, значение — число (процент)
+    [key: string]: number;
   };
 };
 
 const ProductsPage: React.FC = () => {
   const [data, setData] = useState<Products[]>([]);
+
   const [isOpen, setIsOpen] = useState(false);
+
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editProduct, setEditProduct] = useState<Products | null>(null);
+
+  const [imageModal, setImageModal] = useState(false);
+  const [selectedImage, setSelectedImage] = useState("");
 
   const [imagePreview, setImagePreview] = useState<string>("");
 
   const [token, setToken] = useState<string | null>(null);
   const [image, setImage] = useState<File | null>(null);
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
+  const [titleEn, setTitleEn] = useState("");
+  const [titleRu, setTitleRu] = useState("");
+  const [titleDe, setTitleDe] = useState("");
+  const [descriptionEn, setDescriptionEn] = useState("");
+  const [descriptionRu, setDescriptionRu] = useState("");
+  const [descriptionDe, setDescriptionDe] = useState("");
+  const [minSell, setMinSell] = useState("");
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState("");
   const [colors, setColors] = useState("");
@@ -76,8 +87,8 @@ const ProductsPage: React.FC = () => {
 
     const formData = new FormData();
     if (image) formData.append("images", image);
-    formData.append("title_en", title);
-    formData.append("description_en", description);
+    formData.append("title_en", titleEn);
+    formData.append("description_en", descriptionEn);
     formData.append("price", String(Number(price)));
     formData.append("category_id", category);
     formData.append("colors_id", colors);
@@ -115,8 +126,8 @@ const ProductsPage: React.FC = () => {
 
     const formData = new FormData();
     if (image) formData.append("images", image);
-    formData.append("title_en", title);
-    formData.append("description_en", description);
+    formData.append("title_en", titleEn);
+    formData.append("description_en", descriptionEn);
     formData.append("price", String(Number(price)));
     formData.append("category_id", category);
     formData.append("colors_id", colors);
@@ -172,8 +183,13 @@ const ProductsPage: React.FC = () => {
     setIsOpen(true);
     setImage(null);
     setImagePreview("");
-    setTitle("");
-    setDescription("");
+    setTitleEn("");
+    setTitleRu("");
+    setTitleDe("");
+    setDescriptionEn("");
+    setDescriptionRu("");
+    setDescriptionDe("");
+    setMinSell("");
     setPrice("");
     setCategory("");
     setColors("");
@@ -190,8 +206,8 @@ const ProductsPage: React.FC = () => {
     if (editProduct) {
       setImagePreview(editProduct.images);
       setImage(null);
-      setTitle(editProduct.title);
-      setDescription(editProduct.description);
+      setTitleEn(editProduct.title);
+      setDescriptionEn(editProduct.description);
       setPrice(editProduct.price);
       setCategory(editProduct.category.name_en);
       setSizes(String(editProduct.sizes));
@@ -200,6 +216,11 @@ const ProductsPage: React.FC = () => {
       setDiscount(String(editProduct.discount));
     }
   }, [editProduct]);
+
+  const openImageModal = (url: string) => {
+    setSelectedImage(url);
+    setImageModal(true);
+  };
 
   return (
     <div className="p-4 bg-white rounded-lg shadow">
@@ -251,22 +272,31 @@ const ProductsPage: React.FC = () => {
                   <th className="py-2 px-4 border">Category</th>
                   <th className="py-2 px-4 border">Colors</th>
                   <th className="py-2 px-4 border">Sizes</th>
-                  <th className="py-2 px-4 border">Discount</th>
+                  <th className="py-2 px-4 border">Discount (%)</th>
                   <th className="py-2 px-4 border">Materials</th>
                   <th className="py-2 px-4 border">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {data?.map((element) => (
+                {data?.map((element, index) => (
                   <tr key={element.id} className="text-center">
-                    <td className="py-2 px-4 border">{element.id}</td>
+                    <td className="py-2 px-4 border">{index + 1}</td>
                     <td className="py-2 px-4 border">
-                      {element.images && (
+                      {element.images ? (
                         <img
                           src={`https://back.ifly.com.uz/${element.images}`}
-                          alt="image"
-                          className="rounded w-full h-40 object-cover"
+                          alt={"Изображение товара"}
+                          className="rounded w-full h-40 object-cover cursor-pointer hover:opacity-80"
+                          onClick={() =>
+                            openImageModal(
+                              `https://back.ifly.com.uz/${element.images}`
+                            )
+                          }
                         />
+                      ) : (
+                        <div className="w-full h-40 bg-gray-100 flex items-center justify-center text-gray-400 italic">
+                          Нет изображения
+                        </div>
                       )}
                     </td>
                     <td className="py-2 px-4 border">{element.title_en}</td>
@@ -278,14 +308,29 @@ const ProductsPage: React.FC = () => {
                       {element.category?.name_en}
                     </td>
                     <td className="py-2 px-4 border">
-                      {element.colors[0].color_en}
+                      {element.colors?.[0]?.color_en ?? "—"}
                     </td>
-                    <td className="py-2 px-4 border">""</td>
+                    {element.sizes.map((el: any, index: any) => (
+                      <td className="py-2 px-4 border" key={index}>
+                        {el.size}
+                      </td>
+                    ))}
                     <td className="py-2 px-4 border">
                       {element.discount.discount}
                     </td>
                     <td className="py-2 px-4 border">
-                      {element.materials.material}
+                      {element.materials &&
+                      Object.keys(element.materials).length > 0 ? (
+                        Object.entries(element.materials).map(
+                          ([key, value]) => (
+                            <div key={key}>
+                              {key}: {value}
+                            </div>
+                          )
+                        )
+                      ) : (
+                        <span className="text-gray-400">—</span>
+                      )}
                     </td>
                     <td className="py-2 px-4 border space-x-2">
                       <button
@@ -313,6 +358,12 @@ const ProductsPage: React.FC = () => {
         </>
       )}
 
+      <ImageModal
+        isOpen={imageModal}
+        onClose={() => setImageModal(false)}
+        imageUrl={selectedImage}
+      />
+
       {/* Add Modal */}
       <Transition appear show={isOpen} as={Fragment}>
         <Dialog as="div" className="relative z-10" onClose={closeModal}>
@@ -339,14 +390,17 @@ const ProductsPage: React.FC = () => {
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <Dialog.Panel className="w-full max-w-3xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                <Dialog.Panel className="w-full max-w-3xl h-[90vh] transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
                   <Dialog.Title
                     as="h3"
                     className="text-xl font-semibold leading-6 text-gray-900"
                   >
                     Add New Product
                   </Dialog.Title>
-                  <form className="mt-4 flex flex-col" onSubmit={createProduct}>
+                  <form
+                    className="flex flex-col space-y-3 overflow-y-auto h-[calc(90vh-3rem)] pr-2"
+                    onSubmit={createProduct}
+                  >
                     <label className="font-semibold">Image</label>
                     <input
                       type="file"
@@ -366,19 +420,57 @@ const ProductsPage: React.FC = () => {
                         className="w-[50%] object-cover rounded"
                       />
                     )}
-                    <label className="font-semibold">Title</label>
+                    <label className="font-semibold">Product Title (EN)</label>
                     <input
                       type="text"
-                      onChange={(e) => setTitle(e.target.value)}
-                      value={title}
+                      onChange={(e) => setTitleEn(e.target.value)}
+                      value={titleEn}
                       className="w-full border border-gray-400 p-2 rounded mb-3"
                       required
                     />
-                    <label className="font-semibold">Description</label>
+                    <label className="font-semibold">Product Title (RU)</label>
                     <input
                       type="text"
-                      onChange={(e) => setDescription(e.target.value)}
-                      value={description}
+                      onChange={(e) => setTitleRu(e.target.value)}
+                      value={titleRu}
+                      className="w-full border border-gray-400 p-2 rounded mb-3"
+                      required
+                    />
+                    <label className="font-semibold">Product Title (DE)</label>
+                    <input
+                      type="text"
+                      onChange={(e) => setTitleDe(e.target.value)}
+                      value={titleDe}
+                      className="w-full border border-gray-400 p-2 rounded mb-3"
+                      required
+                    />
+                    <label className="font-semibold">
+                      Product Description (EN)
+                    </label>
+                    <input
+                      type="text"
+                      onChange={(e) => setDescriptionEn(e.target.value)}
+                      value={descriptionEn}
+                      className="w-full border border-gray-400 p-2 rounded mb-3"
+                      required
+                    />
+                    <label className="font-semibold">
+                      Product Description (RU)
+                    </label>
+                    <input
+                      type="text"
+                      onChange={(e) => setDescriptionRu(e.target.value)}
+                      value={descriptionRu}
+                      className="w-full border border-gray-400 p-2 rounded mb-3"
+                      required
+                    />
+                    <label className="font-semibold">
+                      Product Description (DE)
+                    </label>
+                    <input
+                      type="text"
+                      onChange={(e) => setDescriptionDe(e.target.value)}
+                      value={descriptionDe}
                       className="w-full border border-gray-400 p-2 rounded mb-3"
                       required
                     />
@@ -390,14 +482,27 @@ const ProductsPage: React.FC = () => {
                       className="w-full border border-gray-400 p-2 rounded mb-3"
                       required
                     />
-                    <label className="font-semibold">Category</label>
+                    <label className="font-semibold">Minimum Sell</label>
                     <input
-                      type="text"
+                      type="number"
+                      onChange={(e) => setMinSell(e.target.value)}
+                      value={minSell}
+                      className="w-full border border-gray-400 p-2 rounded mb-3"
+                      required
+                    />
+                    <label className="font-semibold">Category</label>
+                    <select
                       onChange={(e) => setCategory(e.target.value)}
                       value={category}
                       className="w-full border border-gray-400 p-2 rounded mb-3"
                       required
-                    />
+                    >
+                      <option value="" disabled>
+                        Select
+                      </option>
+                      <option value="option1">Yozgi fasil</option>
+                      <option value="option2">Qishgi fasil</option>
+                    </select>
                     <label className="font-semibold">Colors</label>
                     <input
                       type="text"
@@ -431,7 +536,7 @@ const ProductsPage: React.FC = () => {
                       required
                     /> */}
 
-                    <div className="mt-4 flex justify-end space-x-2">
+                    <div className="mt-4 mb-2 flex justify-end space-x-2">
                       <button
                         type="submit"
                         className="bg-green-500 px-4 py-2 text-white rounded hover:bg-green-600"
@@ -511,19 +616,57 @@ const ProductsPage: React.FC = () => {
                         className="w-[50%] object-cover rounded"
                       />
                     )}
-                    <label className="font-semibold">Title</label>
+                    <label className="font-semibold">Product Title (EN)</label>
                     <input
                       type="text"
-                      onChange={(e) => setTitle(e.target.value)}
-                      value={title}
+                      onChange={(e) => setTitleEn(e.target.value)}
+                      value={titleEn}
                       className="w-full border border-gray-400 p-2 rounded mb-3"
                       required
                     />
-                    <label className="font-semibold">Description</label>
+                    <label className="font-semibold">Product Title (RU)</label>
                     <input
                       type="text"
-                      onChange={(e) => setDescription(e.target.value)}
-                      value={description}
+                      onChange={(e) => setTitleRu(e.target.value)}
+                      value={titleRu}
+                      className="w-full border border-gray-400 p-2 rounded mb-3"
+                      required
+                    />
+                    <label className="font-semibold">Product Title (DE)</label>
+                    <input
+                      type="text"
+                      onChange={(e) => setTitleDe(e.target.value)}
+                      value={titleDe}
+                      className="w-full border border-gray-400 p-2 rounded mb-3"
+                      required
+                    />
+                    <label className="font-semibold">
+                      Product Description (EN)
+                    </label>
+                    <input
+                      type="text"
+                      onChange={(e) => setDescriptionEn(e.target.value)}
+                      value={descriptionEn}
+                      className="w-full border border-gray-400 p-2 rounded mb-3"
+                      required
+                    />
+                    <label className="font-semibold">
+                      Product Description (RU)
+                    </label>
+                    <input
+                      type="text"
+                      onChange={(e) => setDescriptionRu(e.target.value)}
+                      value={descriptionRu}
+                      className="w-full border border-gray-400 p-2 rounded mb-3"
+                      required
+                    />
+                    <label className="font-semibold">
+                      Product Description (DE)
+                    </label>
+                    <input
+                      type="text"
+                      onChange={(e) => setDescriptionDe(e.target.value)}
+                      value={descriptionDe}
                       className="w-full border border-gray-400 p-2 rounded mb-3"
                       required
                     />
@@ -535,14 +678,27 @@ const ProductsPage: React.FC = () => {
                       className="w-full border border-gray-400 p-2 rounded mb-3"
                       required
                     />
-                    <label className="font-semibold">Category</label>
+                    <label className="font-semibold">Minimum Sell</label>
                     <input
-                      type="text"
+                      type="number"
+                      onChange={(e) => setMinSell(e.target.value)}
+                      value={minSell}
+                      className="w-full border border-gray-400 p-2 rounded mb-3"
+                      required
+                    />
+                    <label className="font-semibold">Category</label>
+                    <select
                       onChange={(e) => setCategory(e.target.value)}
                       value={category}
                       className="w-full border border-gray-400 p-2 rounded mb-3"
                       required
-                    />
+                    >
+                      <option value="" disabled>
+                        Select
+                      </option>
+                      <option value="option1">Yozgi fasil</option>
+                      <option value="option2">Qishgi fasil</option>
+                    </select>
                     <label className="font-semibold">Colors</label>
                     <input
                       type="text"

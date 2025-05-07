@@ -2,6 +2,7 @@
 import { Dialog, Transition } from "@headlessui/react";
 import React, { useEffect, useState, Fragment } from "react";
 import { toast, ToastContainer } from "react-toastify";
+import { ImageModal } from "@/app/components/ImageModal";
 
 type News = {
   id: number;
@@ -19,6 +20,9 @@ const NewsPage: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editTeam, setEditTeam] = useState<News | null>(null);
+
+  const [imageModal, setImageModal] = useState(false);
+  const [selectedImage, setSelectedImage] = useState("");
 
   const [imagePreview, setImagePreview] = useState<string>("");
 
@@ -164,6 +168,11 @@ const NewsPage: React.FC = () => {
     }
   }, [editTeam]);
 
+  const openImageModal = (url: string) => {
+    setSelectedImage(url);
+    setImageModal(true);
+  };
+
   return (
     <div className="p-4 bg-white rounded-lg shadow">
       {loadingData ? (
@@ -222,11 +231,22 @@ const NewsPage: React.FC = () => {
                   <tr key={element.id} className="text-center">
                     <td className="py-2 px-4 border">{element.id}</td>
                     <td className="py-2 px-4 border">
-                      <img
-                        src={`https://back.ifly.com.uz/${element.image}`}
-                        alt="image"
-                        className="rounded w-full h-40 object-cover"
-                      />
+                      {element.image ? (
+                        <img
+                          src={`https://back.ifly.com.uz/${element.image}`}
+                          alt={"Изображение товара"}
+                          className="rounded w-full h-40 object-cover cursor-pointer hover:opacity-80"
+                          onClick={() =>
+                            openImageModal(
+                              `https://back.ifly.com.uz/${element.image}`
+                            )
+                          }
+                        />
+                      ) : (
+                        <div className="w-full h-40 bg-gray-100 flex items-center justify-center text-gray-400 italic">
+                          Нет изображения
+                        </div>
+                      )}
                     </td>
                     <td className="py-2 px-4 border">{element.title_en}</td>
                     <td className="py-2 px-4 border">{element.title_ru}</td>
@@ -265,6 +285,12 @@ const NewsPage: React.FC = () => {
           </div>
         </>
       )}
+
+      <ImageModal
+        isOpen={imageModal}
+        onClose={() => setImageModal(false)}
+        imageUrl={selectedImage}
+      />
 
       {/* Add Modal */}
       <Transition appear show={isOpen} as={Fragment}>

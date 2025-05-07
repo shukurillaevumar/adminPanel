@@ -1,19 +1,27 @@
 "use client";
 import { Dialog, Transition } from "@headlessui/react";
-import React, { useEffect, useState, Fragment } from "react";
+import React, { useEffect, useState, Fragment, ReactNode } from "react";
 import { toast, ToastContainer } from "react-toastify";
 
 type Products = {
+  description_en: ReactNode;
+  title_en: any;
   id: number;
-  image: any;
+  images: any;
   title: string;
   description: string;
   price: string;
-  category: string;
-  colors: string;
+  category: {
+    name_en: string;
+  };
+  colors: any;
   sizes: number;
-  discount: number;
-  materials: string;
+  discount: {
+    discount: number;
+  };
+  materials: {
+    [key: string]: number; // ключ — название материала, значение — число (процент)
+  };
 };
 
 const ProductsPage: React.FC = () => {
@@ -33,7 +41,7 @@ const ProductsPage: React.FC = () => {
   const [colors, setColors] = useState("");
   const [sizes, setSizes] = useState("");
   const [discount, setDiscount] = useState("");
-  const [materials, setMaterials] = useState("");
+  const [materials, setMaterials] = useState<{ [key: string]: number }>({});
 
   const [clickId, setClickId] = useState<number | null>(null);
 
@@ -45,7 +53,6 @@ const ProductsPage: React.FC = () => {
   }, []);
 
   const getProducts = () => {
-    console.log(data);
     setLoadingData(true);
 
     fetch("https://back.ifly.com.uz/api/product")
@@ -53,14 +60,13 @@ const ProductsPage: React.FC = () => {
       .then((item) => {
         setData(item?.data?.products);
         setLoadingData(false);
-        console.log(item.data.products);
       })
       .catch((err) => {
         console.error("Ошибка при получении данных:", err);
-        setLoadingData(false); // даже при ошибке убираем загрузку
+        setLoadingData(false);
       });
   };
-
+  console.log(data);
   useEffect(() => {
     getProducts();
   }, []);
@@ -77,7 +83,7 @@ const ProductsPage: React.FC = () => {
     formData.append("colors_id", colors);
     formData.append("sizes_id", String(Number(sizes)));
     formData.append("discount", String(Number(discount)));
-    formData.append("materials", materials);
+    formData.append("materials", JSON.stringify(materials));
 
     if (!token) {
       toast.error("Token not found. Please log in.");
@@ -116,7 +122,7 @@ const ProductsPage: React.FC = () => {
     formData.append("colors_id", colors);
     formData.append("sizes_id", String(Number(sizes)));
     formData.append("discount", String(Number(discount)));
-    formData.append("materials", materials);
+    formData.append("materials", JSON.stringify(materials));
 
     if (!token) {
       toast.error("Token not found. Please log in.");
@@ -173,7 +179,7 @@ const ProductsPage: React.FC = () => {
     setColors("");
     setSizes("");
     setDiscount("");
-    setMaterials("");
+    setMaterials({});
   }
 
   function closeModal() {
@@ -182,12 +188,12 @@ const ProductsPage: React.FC = () => {
 
   useEffect(() => {
     if (editProduct) {
-      setImagePreview(editProduct.image);
+      setImagePreview(editProduct.images);
       setImage(null);
       setTitle(editProduct.title);
       setDescription(editProduct.description);
       setPrice(editProduct.price);
-      setCategory(editProduct.category);
+      setCategory(editProduct.category.name_en);
       setSizes(String(editProduct.sizes));
       setColors(editProduct.colors);
       setMaterials(editProduct.materials);
@@ -255,37 +261,31 @@ const ProductsPage: React.FC = () => {
                   <tr key={element.id} className="text-center">
                     <td className="py-2 px-4 border">{element.id}</td>
                     <td className="py-2 px-4 border">
-                      {element.image && (
+                      {element.images && (
                         <img
-                          src={
-                            typeof element.image === "string"
-                              ? `https://back.ifly.com.uz/${element.image}`
-                              : URL.createObjectURL(element.image)
-                          }
+                          src={`https://back.ifly.com.uz/${element.images}`}
                           alt="image"
                           className="rounded w-full h-40 object-cover"
                         />
                       )}
                     </td>
-                    <td className="py-2 px-4 border">{element.title}</td>
-                    <td className="py-2 px-4 border">{element.description}</td>
+                    <td className="py-2 px-4 border">{element.title_en}</td>
+                    <td className="py-2 px-4 border">
+                      {element.description_en}
+                    </td>
                     <td className="py-2 px-4 border">{element.price}</td>
-                    <td className="py-2 px-4 border">{element.category}</td>
                     <td className="py-2 px-4 border">
-                      {Array.isArray(element.colors)
-                        ? element.colors.join(", ")
-                        : element.colors}
+                      {element.category?.name_en}
                     </td>
                     <td className="py-2 px-4 border">
-                      {Array.isArray(element.sizes)
-                        ? element.sizes.join(", ")
-                        : element.sizes}
+                      {element.colors[0].color_en}
                     </td>
-                    <td className="py-2 px-4 border">{element.discount}</td>
+                    <td className="py-2 px-4 border">""</td>
                     <td className="py-2 px-4 border">
-                      {Array.isArray(element.materials)
-                        ? element.materials.join(", ")
-                        : element.materials}
+                      {element.discount.discount}
+                    </td>
+                    <td className="py-2 px-4 border">
+                      {element.materials.material}
                     </td>
                     <td className="py-2 px-4 border space-x-2">
                       <button
@@ -422,14 +422,14 @@ const ProductsPage: React.FC = () => {
                       className="w-full border border-gray-400 p-2 rounded mb-3"
                       required
                     />
-                    <label className="font-semibold">Materials</label>
+                    {/* <label className="font-semibold">Materials</label>
                     <input
                       type="text"
                       onChange={(e) => setMaterials(e.target.value)}
                       value={materials}
                       className="w-full border border-gray-400 p-2 rounded mb-3"
                       required
-                    />
+                    /> */}
 
                     <div className="mt-4 flex justify-end space-x-2">
                       <button
@@ -567,14 +567,14 @@ const ProductsPage: React.FC = () => {
                       className="w-full border border-gray-400 p-2 rounded mb-3"
                       required
                     />
-                    <label className="font-semibold">Materials</label>
+                    {/* <label className="font-semibold">Materials</label>
                     <input
                       type="text"
                       onChange={(e) => setMaterials(e.target.value)}
                       value={materials}
                       className="w-full border border-gray-400 p-2 rounded mb-3"
                       required
-                    />
+                    /> */}
 
                     <div className="mt-4 flex justify-end space-x-2">
                       <button

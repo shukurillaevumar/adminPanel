@@ -49,8 +49,8 @@ const ProductsPage: React.FC = () => {
   const [minSell, setMinSell] = useState("");
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState("");
-  const [colors, setColors] = useState("");
-  const [sizes, setSizes] = useState("");
+  const [colors, setColors] = useState<string[]>([]);
+  const [selectedSizes, setSelectedSizes] = useState<number[]>([]);
   const [discount, setDiscount] = useState("");
   const [materials, setMaterials] = useState<{ [key: string]: number }>({});
 
@@ -91,8 +91,8 @@ const ProductsPage: React.FC = () => {
     formData.append("description_en", descriptionEn);
     formData.append("price", String(Number(price)));
     formData.append("category_id", category);
-    formData.append("colors_id", colors);
-    formData.append("sizes_id", String(Number(sizes)));
+    formData.append("colors_id", JSON.stringify(colors));
+    formData.append("sizes_id[]", String(selectedSizes));
     formData.append("discount", String(Number(discount)));
     formData.append("materials", JSON.stringify(materials));
 
@@ -125,13 +125,13 @@ const ProductsPage: React.FC = () => {
     e.preventDefault();
 
     const formData = new FormData();
-    if (image) formData.append("images", image);
+    if (image) formData.append("image", image);
     formData.append("title_en", titleEn);
     formData.append("description_en", descriptionEn);
     formData.append("price", String(Number(price)));
     formData.append("category_id", category);
-    formData.append("colors_id", colors);
-    formData.append("sizes_id", String(Number(sizes)));
+    formData.append("colors_id", JSON.stringify(colors));
+    formData.append("sizes_id[]", String(selectedSizes));
     formData.append("discount", String(Number(discount)));
     formData.append("materials", JSON.stringify(materials));
 
@@ -192,8 +192,8 @@ const ProductsPage: React.FC = () => {
     setMinSell("");
     setPrice("");
     setCategory("");
-    setColors("");
-    setSizes("");
+    setColors([]);
+    setSelectedSizes([]);
     setDiscount("");
     setMaterials({});
   }
@@ -210,7 +210,9 @@ const ProductsPage: React.FC = () => {
       setDescriptionEn(editProduct.description);
       setPrice(editProduct.price);
       setCategory(editProduct.category.name_en);
-      setSizes(String(editProduct.sizes));
+      setSelectedSizes(
+        editProduct.sizes.map((size) => parseInt(size.size, 10))
+      );
       setColors(editProduct.colors);
       setMaterials(editProduct.materials);
       setDiscount(String(editProduct.discount));
@@ -220,6 +222,27 @@ const ProductsPage: React.FC = () => {
   const openImageModal = (url: string) => {
     setSelectedImage(url);
     setImageModal(true);
+  };
+
+  const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value, checked } = e.target;
+
+    if (checked) {
+      setColors((prev) => [...prev, value]);
+    } else {
+      setColors((prev) => prev.filter((color) => color !== value));
+    }
+  };
+
+  const handleSizeChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    size: number
+  ) => {
+    if (e.target.checked) {
+      setSelectedSizes((prev) => [...prev, size]);
+    } else {
+      setSelectedSizes((prev) => prev.filter((s) => s !== size));
+    }
   };
 
   return (
@@ -504,21 +527,36 @@ const ProductsPage: React.FC = () => {
                       <option value="option2">Qishgi fasil</option>
                     </select>
                     <label className="font-semibold">Colors</label>
-                    <input
-                      type="text"
-                      onChange={(e) => setColors(e.target.value)}
-                      value={colors}
-                      className="w-full border border-gray-400 p-2 rounded mb-3"
-                      required
-                    />
+                    <div className="flex gap-2 mb-3">
+                      {["Red", "Green", "Blue", "Black"].map((color) => (
+                        <label key={color} className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            value={color}
+                            className="appearance-none w-5 h-5 border border-gray-400 rounded-full checked:bg-blue-500 checked:border-transparent focus:outline-none transition-all"
+                            checked={colors.includes(color)}
+                            onChange={handleColorChange}
+                          />
+                          {color}
+                        </label>
+                      ))}
+                    </div>
                     <label className="font-semibold">Sizes</label>
-                    <input
-                      type="number"
-                      onChange={(e) => setSizes(e.target.value)}
-                      value={sizes}
-                      className="w-full border border-gray-400 p-2 rounded mb-3"
-                      required
-                    />
+                    <div className="flex gap-2 mb-3">
+                      {[20, 15, 12, 11].map((size) => (
+                        <label key={size} className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            value={size}
+                            className="appearance-none w-5 h-5 border border-gray-400 rounded-full checked:bg-blue-500 checked:border-transparent focus:outline-none transition-all"
+                            checked={selectedSizes.includes(size)}
+                            onChange={(e) => handleSizeChange(e, size)}
+                          />
+                          {size}
+                        </label>
+                      ))}
+                    </div>
+
                     <label className="font-semibold">Discount</label>
                     <input
                       type="text"
@@ -527,14 +565,15 @@ const ProductsPage: React.FC = () => {
                       className="w-full border border-gray-400 p-2 rounded mb-3"
                       required
                     />
-                    {/* <label className="font-semibold">Materials</label>
+                    <label className="font-semibold">Materials</label>
                     <input
                       type="text"
-                      onChange={(e) => setMaterials(e.target.value)}
-                      value={materials}
+                      placeholder="Material name"
                       className="w-full border border-gray-400 p-2 rounded mb-3"
-                      required
-                    /> */}
+                      onChange={(e) =>
+                        setMaterials({ ...materials, [e.target.value]: 0 })
+                      }
+                    />
 
                     <div className="mt-4 mb-2 flex justify-end space-x-2">
                       <button
@@ -596,7 +635,10 @@ const ProductsPage: React.FC = () => {
                   >
                     Edit Product
                   </Dialog.Title>
-                  <form className="mt-4 flex flex-col" onSubmit={updateProduct}>
+                  <form
+                    className="flex flex-col space-y-3 overflow-y-auto h-[calc(90vh-3rem)] pr-2"
+                    onSubmit={updateProduct}
+                  >
                     <label className="font-semibold">Image</label>
                     <input
                       type="file"
@@ -700,21 +742,36 @@ const ProductsPage: React.FC = () => {
                       <option value="option2">Qishgi fasil</option>
                     </select>
                     <label className="font-semibold">Colors</label>
-                    <input
-                      type="text"
-                      onChange={(e) => setColors(e.target.value)}
-                      value={colors}
-                      className="w-full border border-gray-400 p-2 rounded mb-3"
-                      required
-                    />
+                    <div className="flex gap-2 mb-3">
+                      {["Red", "Green", "Blue", "Black"].map((color) => (
+                        <label key={color} className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            value={color}
+                            className="appearance-none w-5 h-5 border border-gray-400 rounded-full checked:bg-blue-500 checked:border-transparent focus:outline-none transition-all"
+                            checked={colors.includes(color)}
+                            onChange={handleColorChange}
+                          />
+                          {color}
+                        </label>
+                      ))}
+                    </div>
                     <label className="font-semibold">Sizes</label>
-                    <input
-                      type="number"
-                      onChange={(e) => setSizes(e.target.value)}
-                      value={sizes}
-                      className="w-full border border-gray-400 p-2 rounded mb-3"
-                      required
-                    />
+                    <div className="flex gap-2 mb-3">
+                      {[20, 15, 12, 11].map((size) => (
+                        <label key={size} className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            value={size}
+                            className="appearance-none w-5 h-5 border border-gray-400 rounded-full checked:bg-blue-500 checked:border-transparent focus:outline-none transition-all"
+                            checked={selectedSizes.includes(size)}
+                            onChange={(e) => handleSizeChange(e, size)}
+                          />
+                          {size}
+                        </label>
+                      ))}
+                    </div>
+
                     <label className="font-semibold">Discount</label>
                     <input
                       type="text"
@@ -723,16 +780,17 @@ const ProductsPage: React.FC = () => {
                       className="w-full border border-gray-400 p-2 rounded mb-3"
                       required
                     />
-                    {/* <label className="font-semibold">Materials</label>
+                    <label className="font-semibold">Materials</label>
                     <input
                       type="text"
-                      onChange={(e) => setMaterials(e.target.value)}
-                      value={materials}
+                      placeholder="Material name"
                       className="w-full border border-gray-400 p-2 rounded mb-3"
-                      required
-                    /> */}
+                      onChange={(e) =>
+                        setMaterials({ ...materials, [e.target.value]: 0 })
+                      }
+                    />
 
-                    <div className="mt-4 flex justify-end space-x-2">
+                    <div className="mt-4 mb-2 flex justify-end space-x-2">
                       <button
                         type="submit"
                         className="bg-green-500 px-4 py-2 text-white rounded hover:bg-green-600"

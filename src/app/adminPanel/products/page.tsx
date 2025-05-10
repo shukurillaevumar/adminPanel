@@ -5,8 +5,14 @@ import React, { useEffect, useState, Fragment, ReactNode } from "react";
 import { toast, ToastContainer } from "react-toastify";
 
 type Products = {
-  description_en: ReactNode;
+  description_en: any;
+  description_ru: any;
+  description_de: any;
+
   title_en: any;
+  title_ru: any;
+  title_de: any;
+
   id: number;
   images: any;
   title: string;
@@ -16,6 +22,7 @@ type Products = {
     name_en: string;
   };
   colors: any;
+  min_sell: any;
   sizes: Array<{ size: string }>;
   discount: {
     discount: number;
@@ -40,12 +47,15 @@ const ProductsPage: React.FC = () => {
 
   const [token, setToken] = useState<string | null>(null);
   const [image, setImage] = useState<File | null>(null);
+
   const [titleEn, setTitleEn] = useState("");
   const [titleRu, setTitleRu] = useState("");
   const [titleDe, setTitleDe] = useState("");
+
   const [descriptionEn, setDescriptionEn] = useState("");
   const [descriptionRu, setDescriptionRu] = useState("");
   const [descriptionDe, setDescriptionDe] = useState("");
+
   const [minSell, setMinSell] = useState("");
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState("");
@@ -66,7 +76,7 @@ const ProductsPage: React.FC = () => {
   const getProducts = () => {
     setLoadingData(true);
 
-    fetch("https://back.ifly.com.uz/api/product")
+    fetch("https://testaoron.limsa.uz/api/product")
       .then((response) => response.json())
       .then((item) => {
         setData(item?.data?.products);
@@ -77,7 +87,7 @@ const ProductsPage: React.FC = () => {
         setLoadingData(false);
       });
   };
-  console.log(data);
+
   useEffect(() => {
     getProducts();
   }, []);
@@ -86,7 +96,7 @@ const ProductsPage: React.FC = () => {
     e.preventDefault();
 
     const formData = new FormData();
-    if (image) formData.append("images", image);
+    if (image) formData.append("file", image);
     formData.append("title_en", titleEn);
     formData.append("description_en", descriptionEn);
     formData.append("price", String(Number(price)));
@@ -101,7 +111,7 @@ const ProductsPage: React.FC = () => {
       return;
     }
 
-    fetch("https://back.ifly.com.uz/api/product", {
+    fetch("https://testaoron.limsa.uz/api/product", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -140,7 +150,7 @@ const ProductsPage: React.FC = () => {
       return;
     }
 
-    fetch(`https://back.ifly.com.uz/api/product/${clickId}`, {
+    fetch(`https://testaoron.limsa.uz/api/product/${clickId}`, {
       method: "PATCH",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -161,7 +171,7 @@ const ProductsPage: React.FC = () => {
   };
 
   const deleteProduct = (id: number) => {
-    fetch(`https://back.ifly.com.uz/api/product/${id}`, {
+    fetch(`https://testaoron.limsa.uz/api/product/${id}`, {
       method: "DELETE",
       headers: {
         "Content-type": "application/json",
@@ -206,8 +216,17 @@ const ProductsPage: React.FC = () => {
     if (editProduct) {
       setImagePreview(editProduct.images);
       setImage(null);
-      setTitleEn(editProduct.title);
-      setDescriptionEn(editProduct.description);
+
+      setTitleEn(editProduct.title_en);
+      setTitleRu(editProduct.title_ru);
+      setTitleDe(editProduct.title_de);
+
+      setDescriptionEn(editProduct.description_en);
+      setDescriptionRu(editProduct.description_ru);
+      setDescriptionDe(editProduct.description_de);
+
+      setMinSell(editProduct.min_sell);
+
       setPrice(editProduct.price);
       setCategory(editProduct.category.name_en);
       setSelectedSizes(
@@ -215,7 +234,7 @@ const ProductsPage: React.FC = () => {
       );
       setColors(editProduct.colors);
       setMaterials(editProduct.materials);
-      setDiscount(String(editProduct.discount));
+      setDiscount(String(editProduct.discount?.discount || "—"));
     }
   }, [editProduct]);
 
@@ -244,6 +263,8 @@ const ProductsPage: React.FC = () => {
       setSelectedSizes((prev) => prev.filter((s) => s !== size));
     }
   };
+
+  console.log(data);
 
   return (
     <div className="p-4 bg-white rounded-lg shadow">
@@ -307,12 +328,12 @@ const ProductsPage: React.FC = () => {
                     <td className="py-2 px-4 border">
                       {element.images ? (
                         <img
-                          src={`https://back.ifly.com.uz/${element.images}`}
+                          src={`https://testaoron.limsa.uz/${element.images}`}
                           alt={"Изображение товара"}
                           className="rounded w-full h-40 object-cover cursor-pointer hover:opacity-80"
                           onClick={() =>
                             openImageModal(
-                              `https://back.ifly.com.uz/${element.images}`
+                              `https://testaoron.limsa.uz/${element.images}`
                             )
                           }
                         />
@@ -339,7 +360,7 @@ const ProductsPage: React.FC = () => {
                       </td>
                     ))}
                     <td className="py-2 px-4 border">
-                      {element.discount.discount}
+                      {element.discount?.discount || "—"}
                     </td>
                     <td className="py-2 px-4 border">
                       {element.materials &&

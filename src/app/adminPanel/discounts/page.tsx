@@ -36,7 +36,7 @@ const DiscountsPage: React.FC = () => {
 
   const getDiscounts = () => {
     setLoadingData(true);
-    fetch("https://back.ifly.com.uz/api/discount")
+    fetch("https://testaoron.limsa.uz/api/discount")
       .then((response) => response.json())
       .then((item) => setData(item?.data));
     setLoadingData(false);
@@ -61,7 +61,7 @@ const DiscountsPage: React.FC = () => {
   const createDiscount = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    fetch("https://back.ifly.com.uz/api/discount", {
+    fetch("https://testaoron.limsa.uz/api/discount", {
       method: "POST",
       headers: {
         "Content-type": "application/json",
@@ -92,7 +92,7 @@ const DiscountsPage: React.FC = () => {
   const updateDiscount = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    fetch(`https://back.ifly.com.uz/api/discount/${clickId}`, {
+    fetch(`https://testaoron.limsa.uz/api/discount/${clickId}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -119,7 +119,7 @@ const DiscountsPage: React.FC = () => {
   };
 
   const deleteDiscount = (id: number) => {
-    fetch(`https://back.ifly.com.uz/api/discount/${id}`, {
+    fetch(`https://testaoron.limsa.uz/api/discount/${id}`, {
       method: "DELETE",
       headers: {
         "Content-type": "application/json",

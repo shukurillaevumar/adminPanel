@@ -30,7 +30,7 @@ const SizePage: React.FC = () => {
 
   const getDiscounts = () => {
     setLoadingData(true);
-    fetch("https://back.ifly.com.uz/api/sizes")
+    fetch("https://testaoron.limsa.uz/api/sizes")
       .then((response) => response.json())
       .then((item) => setData(item?.data));
     setLoadingData(false);
@@ -52,7 +52,7 @@ const SizePage: React.FC = () => {
   const createDiscount = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    fetch("https://back.ifly.com.uz/api/sizes", {
+    fetch("https://testaoron.limsa.uz/api/sizes", {
       method: "POST",
       headers: {
         "Content-type": "application/json",
@@ -80,7 +80,7 @@ const SizePage: React.FC = () => {
   const updateSize = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    fetch(`https://back.ifly.com.uz/api/sizes/${clickId}`, {
+    fetch(`https://testaoron.limsa.uz/api/sizes/${clickId}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -104,7 +104,7 @@ const SizePage: React.FC = () => {
   };
 
   const deleteSize = (id: number) => {
-    fetch(`https://back.ifly.com.uz/api/sizes/${id}`, {
+    fetch(`https://testaoron.limsa.uz/api/sizes/${id}`, {
       method: "DELETE",
       headers: {
         "Content-type": "application/json",

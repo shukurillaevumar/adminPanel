@@ -33,7 +33,7 @@ const CategoryPage: React.FC = () => {
 
   const getCategory = () => {
     setLoadingData(true);
-    fetch("https://back.ifly.com.uz/api/category")
+    fetch("https://testaoron.limsa.uz/api/category")
       .then((response) => response.json())
       .then((item) => setData(item?.data));
     setLoadingData(false);
@@ -46,7 +46,7 @@ const CategoryPage: React.FC = () => {
   const createCategory = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    fetch("https://back.ifly.com.uz/api/category", {
+    fetch("https://testaoron.limsa.uz/api/category", {
       method: "POST",
       headers: {
         "Content-type": "application/json",
@@ -76,7 +76,7 @@ const CategoryPage: React.FC = () => {
   const updateCategory = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    fetch(`https://back.ifly.com.uz/api/category/${clickId}`, {
+    fetch(`https://testaoron.limsa.uz/api/category/${clickId}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -102,7 +102,7 @@ const CategoryPage: React.FC = () => {
   };
 
   const deleteCategory = (id: number) => {
-    fetch(`https://back.ifly.com.uz/api/category/${id}`, {
+    fetch(`https://testaoron.limsa.uz/api/category/${id}`, {
       method: "DELETE",
       headers: {
         "Content-type": "application/json",

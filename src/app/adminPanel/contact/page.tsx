@@ -39,7 +39,7 @@ const ContactPage: React.FC = () => {
   const getCategory = () => {
     setLoadingData(true);
 
-    fetch("https://back.ifly.com.uz/api/contact")
+    fetch("https://testaoron.limsa.uz/api/contact")
       .then((response) => response.json())
       .then((item) => setData(item?.data));
     setLoadingData(false);
@@ -60,7 +60,7 @@ const ContactPage: React.FC = () => {
       return;
     }
 
-    fetch("https://back.ifly.com.uz/api/contact", {
+    fetch("https://testaoron.limsa.uz/api/contact", {
       method: "POST",
       headers: {
         "Content-type": "application/json",
@@ -100,7 +100,7 @@ const ContactPage: React.FC = () => {
       return;
     }
 
-    fetch(`https://back.ifly.com.uz/api/contact/${clickId}`, {
+    fetch(`https://testaoron.limsa.uz/api/contact/${clickId}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -128,7 +128,7 @@ const ContactPage: React.FC = () => {
   };
 
   const deleteContact = (id: number) => {
-    fetch(`https://back.ifly.com.uz/api/contact/${id}`, {
+    fetch(`https://testaoron.limsa.uz/api/contact/${id}`, {
       method: "DELETE",
       headers: {
         "Content-type": "application/json",

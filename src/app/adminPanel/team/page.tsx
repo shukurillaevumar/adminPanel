@@ -43,7 +43,7 @@ const TeamPage: React.FC = () => {
   const getTeam = () => {
     setLoadingData(true);
 
-    fetch("https://back.ifly.com.uz/api/team-section")
+    fetch("https://testaoron.limsa.uz/api/team-section")
       .then((response) => response.json())
       .then((item) => setData(item?.data));
     setLoadingData(false);
@@ -63,7 +63,7 @@ const TeamPage: React.FC = () => {
     formData.append("position_ru", positionRu);
     formData.append("position_de", positionDe);
 
-    fetch("https://back.ifly.com.uz/api/team-section", {
+    fetch("https://testaoron.limsa.uz/api/team-section", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -93,7 +93,7 @@ const TeamPage: React.FC = () => {
     formData.append("position_ru", positionRu);
     formData.append("position_de", positionDe);
 
-    fetch(`https://back.ifly.com.uz/api/team-section/${clickId}`, {
+    fetch(`https://testaoron.limsa.uz/api/team-section/${clickId}`, {
       method: "PATCH",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -114,7 +114,7 @@ const TeamPage: React.FC = () => {
   };
 
   const deleteTeam = (id: number) => {
-    fetch(`https://back.ifly.com.uz/api/team-section/${id}`, {
+    fetch(`https://testaoron.limsa.uz/api/team-section/${id}`, {
       method: "DELETE",
       headers: {
         "Content-type": "application/json",
@@ -220,12 +220,12 @@ const TeamPage: React.FC = () => {
                     <td className="py-2 px-4 border">
                       {element.image ? (
                         <img
-                          src={`https://back.ifly.com.uz/${element.image}`}
+                          src={`https://testaoron.limsa.uz/${element.image}`}
                           alt={"Изображение товара"}
                           className="rounded w-full h-40 object-cover cursor-pointer hover:opacity-80"
                           onClick={() =>
                             openImageModal(
-                              `https://back.ifly.com.uz/${element.image}`
+                              `https://testaoron.limsa.uz/${element.image}`
                             )
                           }
                         />

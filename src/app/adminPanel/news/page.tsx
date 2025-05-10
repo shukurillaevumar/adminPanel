@@ -37,6 +37,7 @@ const NewsPage: React.FC = () => {
   const [clickId, setClickId] = useState<number | null>(null);
 
   const [loadingData, setLoadingData] = useState(true);
+  console.log(data);
 
   useEffect(() => {
     const accessToken = localStorage.getItem("access_token");
@@ -46,7 +47,7 @@ const NewsPage: React.FC = () => {
   const getTeam = () => {
     setLoadingData(true);
 
-    fetch("https://back.ifly.com.uz/api/news")
+    fetch("https://testaoron.limsa.uz/api/news")
       .then((response) => response.json())
       .then((item) => setData(item?.data));
     setLoadingData(false);
@@ -68,7 +69,7 @@ const NewsPage: React.FC = () => {
     formData.append("description_ru", description_ru);
     formData.append("description_de", description_de);
 
-    fetch("https://back.ifly.com.uz/api/news", {
+    fetch("https://testaoron.limsa.uz/api/news", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -100,7 +101,7 @@ const NewsPage: React.FC = () => {
     formData.append("description_ru", description_ru);
     formData.append("description_de", description_de);
 
-    fetch(`https://back.ifly.com.uz/api/news/${clickId}`, {
+    fetch(`https://testaoron.limsa.uz/api/news/${clickId}`, {
       method: "PATCH",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -121,7 +122,7 @@ const NewsPage: React.FC = () => {
   };
 
   const deleteNews = (id: number) => {
-    fetch(`https://back.ifly.com.uz/api/news/${id}`, {
+    fetch(`https://testaoron.limsa.uz/api/news/${id}`, {
       method: "DELETE",
       headers: {
         "Content-type": "application/json",
@@ -233,12 +234,12 @@ const NewsPage: React.FC = () => {
                     <td className="py-2 px-4 border">
                       {element.image ? (
                         <img
-                          src={`https://back.ifly.com.uz/${element.image}`}
+                          src={`https://testaoron.limsa.uz/${element.image}`}
                           alt={"Изображение товара"}
                           className="rounded w-full h-40 object-cover cursor-pointer hover:opacity-80"
                           onClick={() =>
                             openImageModal(
-                              `https://back.ifly.com.uz/${element.image}`
+                              `https://testaoron.limsa.uz/${element.image}`
                             )
                           }
                         />

@@ -264,8 +264,6 @@ const ProductsPage: React.FC = () => {
     }
   };
 
-  console.log(data);
-
   return (
     <div className="p-4 bg-white rounded-lg shadow">
       {loadingData ? (
